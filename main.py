@@ -13,45 +13,70 @@ import time
 from utils.CreateMovie import CreateMovie, GetDaySuffix
 from utils.RedditBot import RedditBot
 from utils.upload_video import upload_video
+from crop_video import CropVideo
+
+from pytube import YouTube
+
+import streamlit as st
+import pandas as pd
+import os 
+import warnings
+# from utils.YoutubeUtills import ytd,ytd_cutter
+from utils.YoutubeUtills import YoutubeLib
+warnings.filterwarnings('ignore')
+import moviepy.editor as mpy
+from moviepy.video.fx.all import crop
+
+from clipsai import ClipFinder, Transcriber
+from clipsai import resize,VideoFile,MediaEditor,AudioVideoFile
 
 #Create Reddit Data Bot
-redditbot = RedditBot()
+# redditbot = RedditBot()
 
-# Leave if you want to run it 24/7
-while True:
+PYANNOTE_AUTH_TOKEN = "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"
+from moviepy.config import change_settings
+change_settings({"IMAGEMAGICK_BINARY": "/usr/local/Cellar/imagemagick/7.1.1-29_1/bin/magick"})
 
-    # Gets our new posts pass if image related subs. Default is memes
-    posts = redditbot.get_posts("memes")
+# Yt = 
 
-    # Create folder if it doesn't exist
-    redditbot.create_data_folder()
+youtube_video_link = "https://www.youtube.com/watch?v=t8HrZTLRCeU"
 
-    # Go through posts and find 5 that will work for us.
-    for post in posts:
-        redditbot.save_image(post)
+yt = YoutubeLib()
+yt.create_data_folder()
 
-    # Wanted a date in my titles so added this helper
-    DAY = date.today().strftime("%d")
-    DAY = str(int(DAY)) + GetDaySuffix(int(DAY))
-    dt_string = date.today().strftime("%A %B") + f" {DAY}"
+yt_title = yt.ytd(youtube_video_link)
 
-    # Create the movie itself!
-    CreateMovie.CreateMP4(redditbot.post_data)
+# now trim video in with start an end time
 
-    # Video info for YouTube.
-    # This example uses the first post title.
-    video_data = {
-            "file": "video.mp4",
-            "title": f"{redditbot.post_data[0]['title']} - Dankest memes and comments {dt_string}!",
-            "description": "#shorts\nGiving you the hottest memes of the day with funny comments!",
-            "keywords":"meme,reddit,Dankestmemes",
-            "privacyStatus":"public"
-    }
+#tis part 
+trim_start, trim_stop = "00:3:00", "00:3:30"
+cropped_video_title = yt.ytd_cutter(yt_title, trim_start, trim_stop)
+output_path = yt.convert_to_short(yt_title, cropped_video_title)
 
-    print(video_data["title"])
-    print("Posting Video in 5 minutes...")
-    time.sleep(60 * 5)
-    upload_video(video_data)
+# Create the movie itself!
+# CreateMovie.CreateMP4(redditbot.post_data)
 
-    # Sleep until ready to post another video!
-    time.sleep(60 * 60 * 24 - 1)
+# Video info for YouTube.
+# This example uses the first post title.
+video_data = {
+        "file": output_path,
+        "title": f"shorts of {yt_title}",
+        "description": "this is song by of monster and mens",
+        "keywords":"#shorts, #music, #songs",
+        "privacyStatus":"public"
+}
+
+print(video_data["title"])
+
+yt.ytd_upload(video_data)
+
+
+# Sleep until ready to post another video!
+time.sleep(60 * 60 * 24 - 1)
+
+
+
+
+
+
+

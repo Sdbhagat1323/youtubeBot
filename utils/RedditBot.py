@@ -1,21 +1,34 @@
 from datetime import date
 import os
 import praw
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import requests
 import json
 from utils.Scalegif import scale_gif
 
-load_dotenv()
+import os
+client_id = "VM4H8m_-mGEatafOfUyBng"
+client_secret = "v4OPwivKLmquoDxMJHUzX6SOZxdjRA"
+user_agent = "<YoutubeBot-v1>"
+
+# client_id = os.getenv("client_id")
+# client_secret = os.getenv("client_secret")
+# user_agent = os.getenv("user_agent")
+# load_dotenv()
 
 
 class RedditBot():
 
     def __init__(self):
+        # self.reddit = praw.Reddit(
+        #     client_id=os.getenv("client_id"),
+        #     client_secret=os.getenv("client_secret"),
+        #     user_agent=os.getenv("user_agent"),
+        # )
         self.reddit = praw.Reddit(
-            client_id=os.getenv('client_id'),
-            client_secret=os.getenv('client_secret'),
-            user_agent=os.getenv('user_agent'),
+            client_id=client_id,
+            client_secret=client_secret,
+            user_agent=user_agent,
         )
 
         dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

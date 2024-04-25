@@ -4,12 +4,18 @@ import random
 import sys
 import time
 
-from apiclient.discovery import build
-from apiclient.errors import HttpError
-from apiclient.http import MediaFileUpload
+# from apiclient.discovery import build
+# from apiclient.errors import HttpError
+# from apiclient.http import MediaFileUpload
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
+
+
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
+# from AutoTube import client_secrets
 
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
@@ -25,7 +31,7 @@ RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError)
 # Always retry when an apiclient.errors.HttpError with one of these status
 # codes is raised.
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
-CLIENT_SECRETS_FILE = "client_secrets.json"
+CLIENT_SECRETS_FILE = "/Users/admin1/Desktop/youtube_project/basic_App/AutoTube/client_secrets.json"
 
 # This OAuth 2.0 access scope allows an application to upload files to the
 # authenticated user's YouTube channel, but doesn't allow other types of access.
@@ -140,12 +146,32 @@ def upload_video(video_data):
   except HttpError as e:
     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
 
-if __name__ == '__main__':
-    video_data = {
-        "file": "video.mp4",
-        "title": "Best of memes!",
-        "description": "#shorts \n Giving you the hottest memes of the day with funny comments!",
-        "keywords":"meme,reddit",
-        "privacyStatus":"private"
-    }
-    update_video(video_data)
+
+def set_thumbnail():
+  pass
+
+def search_youtube_shorts(youtube, query, max_results=10):
+    args = argparser.parse_args()
+    youtube = get_authenticated_service(args)
+    request = youtube.search().list(
+        q=query,
+        part='snippet',
+        maxResults=max_results,
+        type='video',
+        videoDuration='short'
+    )
+    print(response,"-"* 30)
+    response = request.execute()
+    video_ids = [item['id']['videoId'] for item in response['items']]
+    return video_ids
+
+
+# if __name__ == '__main__':
+#     video_data = {
+#         "file": "video.mp4",
+#         "title": "Best of memes!",
+#         "description": "#shorts \n Giving you the hottest memes of the day with funny comments!",
+#         "keywords":"meme,reddit",
+#         "privacyStatus":"private"
+#     }
+#     upload_video(video_data)
